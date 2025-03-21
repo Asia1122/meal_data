@@ -27,12 +27,11 @@
       border-collapse: collapse;
     }
 
-    /* 테이블의 테두리, 셀 패딩 등 */
     th, td {
       border: 1px solid #000;
       padding: 8px;
-      text-align: center;      /* 내용 가운데 정렬 */
-      vertical-align: middle;  /* 세로 가운데 정렬 */
+      text-align: center;
+      vertical-align: middle;
     }
   </style>
 </head>
@@ -43,15 +42,14 @@
 <div id="meal-info">로딩 중...</div>
 
 <script>
-  // "오늘" 날짜로 YYYYMMDD 형식 만들기
+  // 오늘 날짜를 YYYYMMDD 형식으로 만들기
   const today = new Date();
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
-  // 오늘 날짜 (YYYYMMDD)
   const ymd = `${year}${month}${day}`;
 
-  // API에 필요한 매개변수 설정
+  // API에 필요한 매개변수
   const apiKey = 'bfeb0c44a7654fd3a66e2333104b0082';          // 인증키 (샘플키 사용)
   const apiType = 'json';           // 받을 문서 형식
   const pIndex = 1;                 // 페이지 위치
@@ -60,11 +58,10 @@
   const SD_SCHUL_CODE = '8511059';  // 행정표준코드
   const MMEAL_SC_CODE = '2';        // 중식(2)
   
-  // 오늘 날짜로부터 조회
+  // 오늘 날짜 기준
   const MLSV_FROM_YMD = ymd;
   const MLSV_TO_YMD = ymd;
 
-  // API 호출 URL
   const url = `https://open.neis.go.kr/hub/mealServiceDietInfo`
     + `?KEY=${apiKey}`
     + `&Type=${apiType}`
@@ -91,14 +88,12 @@
 
       const mealInfoRows = data.mealServiceDietInfo[1].row;
 
+      // "메뉴"만 단일 열로 구성한 테이블
       let tableHtml = `
         <table>
           <thead>
             <tr>
-              <th>급식일자</th>
-              <th>식사명</th>
               <th>메뉴</th>
-              <th>칼로리</th>
             </tr>
           </thead>
           <tbody>
@@ -110,10 +105,7 @@
 
         tableHtml += `
           <tr>
-            <td>${row.MLSV_YMD}</td>
-            <td>${row.MMEAL_SC_NM}</td>
             <td>${dishName.replace(/\n/g, '<br>')}</td>
-            <td>${row.CAL_INFO}</td>
           </tr>
         `;
       });
