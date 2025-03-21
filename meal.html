@@ -3,9 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>오늘의 급식 정보</title>
+  <style>
+    /* 전체 페이지 스타일 */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: white;                  /* 배경 흰색 */
+      font-size: clamp(14px, 2vw, 24px);        /* 반응형 글자 크기 */
+      line-height: 1.4;                         /* 줄간격 약간 여유 */
+    }
+
+    /* 제목 스타일 */
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* 테이블 스타일 */
+    table {
+      width: 90%;              /* 화면에 따라 크기가 줄어듦 */
+      max-width: 1200px;       /* 최대 너비 설정 */
+      margin: 20px auto;       /* 가운데 정렬 */
+      border-collapse: collapse;
+    }
+
+    /* 테이블의 테두리, 셀 패딩 등 */
+    th, td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: center;      /* 내용 가운데 정렬 */
+      vertical-align: middle;  /* 세로 가운데 정렬 */
+    }
+  </style>
 </head>
 <body>
-<bgcolor = white>
+
 <h1>오늘의 급식 정보</h1>
 
 <div id="meal-info">로딩 중...</div>
@@ -14,7 +46,6 @@
   // "오늘" 날짜로 YYYYMMDD 형식 만들기
   const today = new Date();
   const year = today.getFullYear();
-  // getMonth()가 0부터 시작하므로 실제 월은 (getMonth()+1)
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
   // 오늘 날짜 (YYYYMMDD)
@@ -27,9 +58,10 @@
   const pSize = 100;                // 페이지 당 결과 수
   const ATPT_OFCDC_SC_CODE = 'Q10'; // 시도교육청코드
   const SD_SCHUL_CODE = '8511059';  // 행정표준코드
-  const MMEAL_SC_CODE = '2';        // 중식(2)으로 설정, 필요 시 변경 가능
-  // 오늘 날짜 기준
-  const MLSV_FROM_YMD = ymd;        
+  const MMEAL_SC_CODE = '2';        // 중식(2)
+  
+  // 오늘 날짜로부터 조회
+  const MLSV_FROM_YMD = ymd;
   const MLSV_TO_YMD = ymd;
 
   // API 호출 URL
@@ -52,18 +84,15 @@
       const response = await fetch(url);
       const data = await response.json();
 
-      // 데이터가 없거나 오류가 있는 경우 처리
       if (!data.mealServiceDietInfo) {
         mealInfoDiv.innerHTML = '<p>오늘은 급식 정보가 없습니다.</p>';
         return;
       }
 
-      // 급식 정보 배열
       const mealInfoRows = data.mealServiceDietInfo[1].row;
 
-      // 테이블 생성
       let tableHtml = `
-        <table border="1">
+        <table>
           <thead>
             <tr>
               <th>급식일자</th>
@@ -76,7 +105,7 @@
       `;
 
       mealInfoRows.forEach(row => {
-        // DDISH_NM에 포함된 <br/> 태그를 \n으로 교체 후 줄바꿈 처리
+        // DDISH_NM에 포함된 <br/> 태그를 줄바꿈으로 교체
         const dishName = row.DDISH_NM.replace(/<br\/>/g, '\n');
 
         tableHtml += `
