@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>오늘의 급식 정보</title>
+</head>
+<body>
+
+<h1>오늘의 급식 정보</h1>
+
+<div id="meal-info">로딩 중...</div>
+
+<script>
+  // "오늘" 날짜로 YYYYMMDD 형식 만들기
+  const today = new Date();
+  const year = today.getFullYear();
+  // getMonth()가 0부터 시작하므로 실제 월은 (getMonth()+1)
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  // 오늘 날짜 (YYYYMMDD)
+  const ymd = `${year}${month}${day}`;
+
+  // API에 필요한 매개변수 설정
+  const apiKey = 'bfeb0c44a7654fd3a66e2333104b0082';          // 인증키 (샘플키 사용)
+  const apiType = 'json';           // 받을 문서 형식
+  const pIndex = 1;                 // 페이지 위치
+  const pSize = 100;                // 페이지 당 결과 수
+  const ATPT_OFCDC_SC_CODE = 'Q10'; // 시도교육청코드
+  const SD_SCHUL_CODE = '8511059';  // 행정표준코드
+  const MMEAL_SC_CODE = '2';        // 중식(2)으로 설정, 필요 시 변경 가능
+  // 오늘 날짜 기준
+  const MLSV_FROM_YMD = ymd;        
+  const MLSV_TO_YMD = ymd;
+
+  // API 호출 URL
+  const url = `https://open.neis.go.kr/hub/mealServiceDietInfo`
+    + `?KEY=${apiKey}`
+    + `&Type=${apiType}`
+    + `&pIndex=${pIndex}`
+    + `&pSize=${pSize}`
+    + `&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}`
+    + `&SD_SCHUL_CODE=${SD_SCHUL_CODE}`
+    + `&MMEAL_SC_CODE=${MMEAL_SC_CODE}`
+    + `&MLSV_FROM_YMD=${MLSV_FROM_YMD}`
+    + `&MLSV_TO_YMD=${MLSV_TO_YMD}`;
+
+  const mealInfoDiv = document.getElementById('meal-info');
+
+  // API 호출 및 결과 표시
+  async function getMealData() {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      // 데이터가 없거나 오류가 있는 경우 처리
+      if (!data.mealServiceDietInfo) {
+        mealInfoDiv.innerHTML = '<p>오늘은 급식 정보가 없습니다.</p>';
+        return;
+      }
+
+      // 급식 정보 배열
+      const mealInfoRows = data.mealServiceDietInfo[1].row;
+
+      // 테이블 생성
+      let tableHtml = `
+        <table border="1">
+          <thead>
+            <tr>
+              <th>급식일자</th>
+              <th>식사명</th>
+              <th>메뉴</th>
+              <th>칼로리</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      mealInfoRows.forEach(row => {
+        // DDISH_NM에 포함된 <br/> 태그를 \n으로 교체 후 줄바꿈 처리
+        const dishName = row.DDISH_NM.replace(/<br\/>/g, '\n');
+
+        tableHtml += `
+          <tr>
+            <td>${row.MLSV_YMD}</td>
+            <td>${row.MMEAL_SC_NM}</td>
+            <td>${dishName.replace(/\n/g, '<br>')}</td>
+            <td>${row.CAL_INFO}</td>
+          </tr>
+        `;
+      });
+
+      tableHtml += `
+          </tbody>
+        </table>
+      `;
+
+      mealInfoDiv.innerHTML = tableHtml;
+
+    } catch (error) {
+      console.error('급식 정보를 불러오는 중 오류 발생:', error);
+      mealInfoDiv.innerHTML = `<p>급식 정보를 불러오는 중 오류가 발생했습니다.</p>`;
+    }
+  }
+
+  // 페이지 로드 시 함수 호출
+  getMealData();
+</script>
+
+</body>
+</html>
