@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       background-color: white;                  /* 배경 흰색 */
-      font-size: clamp(14px, 2vw, 24px);        /* 반응형 글자 크기 */
+      font-size: clamp(18px, 3vw, 28px);        /* 반응형 글자 크기 */
       line-height: 1.4;                         /* 줄간격 약간 여유 */
     }
 
@@ -90,7 +90,8 @@
 
       // "메뉴"만 단일 열로 구성한 테이블
       let tableHtml = `
-     
+        <table>
+          <tbody>
       `;
 
       mealInfoRows.forEach(row => {
